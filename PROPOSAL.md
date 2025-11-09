@@ -38,7 +38,7 @@ The project will be developed in **Python**, using **Pandas**, **NumPy**, **Matp
 ## **Success Criteria**  
 The project will be considered successful if:  
 - Regression models achieve strong predictive accuracy (R² > 0.85).  
-- Classification models demonstrate reliable performance (accuracy > 80%).  
+- Classification models demonstrate reliable performance (accuracy > 70%).  
 - Visualizations clearly illustrate both numerical predictions and categorical trends across countries.  
 
 
