@@ -1,49 +1,56 @@
-# **Title:** *Predicting and Classifying Life Expectancy Using Socioeconomic, Health, and Environmental Indicators*  
+﻿# **Title:**  
+**Explaining Life Expectancy through Feature Importance and Interpretable Machine Learning Models**
 
+---
 
 ## **Problem Statement / Motivation**  
-Life expectancy represents one of the most comprehensive indicators of a country's well-being, combining the effects of health systems, economic development, education, and environmental factors. Understanding and predicting life expectancy is crucial for policymakers and researchers seeking to improve global living conditions.  
+Life expectancy is one of the most important indicators of a country's well-being, influenced by economic, social, and environmental conditions. While previous studies have identified GDP as a major determinant, many related indicators (e.g., healthcare access, education, CO₂ emissions) are strongly correlated, making it difficult to interpret their individual impact.  
 
-This project aims to explore two complementary approaches:  
-1. **Regression modeling** – to predict the exact life expectancy value of each country.  
-2. **Classification modeling** – to categorize countries into life expectancy levels (*Low*, *Medium*, *High*).  
+This project aims to **analyze and interpret** the contribution of various socioeconomic and health-related features using **interpretable machine learning methods**. Rather than simply maximizing accuracy, the focus will be on understanding model behavior, handling multicollinearity, and comparing algorithmic approaches.
 
-By combining these two perspectives, the project not only provides quantitative predictions but also enables an interpretable categorization of global life expectancy patterns.
-
+---
 
 ## **Planned Approach and Technologies**  
-The dataset used will be the **“Global Country Information Dataset 2023”** from **Kaggle**, containing detailed socioeconomic, environmental, and health indicators for countries worldwide.  
+The project will use the **“Global Country Information Dataset 2023”** from **Kaggle**, which includes GDP, education, fertility, healthcare, and environmental indicators.  
 
-The project will be developed in **Python**, using **Pandas**, **NumPy**, **Matplotlib**, **Seaborn**, and **Scikit-learn**.  
+Implementation will be done in **Python (3.10+)**, using:
+- **Pandas**, **NumPy** for preprocessing  
+- **Scikit-learn** for modeling  
+- **SHAP** for model explainability  
+- **Matplotlib** and **Seaborn** for visualization  
 
-### **Part 1 – Regression Approach**  
-- **Goal:** Predict the numerical value of life expectancy.  
-- **Models:** Linear Regression, Random Forest Regressor.  
-- **Evaluation Metrics:** R², MAE, RMSE.  
-- **Visualization:** Actual vs. predicted plots, feature importance ranking, and regression residuals.  
+### **Steps:**  
+1. **Data Preparation & EDA:**  
+   - Handle missing values, normalize data, and analyze multicollinearity using correlation matrices and **Variance Inflation Factor (VIF)**.  
+   - Optionally apply **Principal Component Analysis (PCA)** to reduce redundancy.  
 
-### **Part 2 – Classification Approach**  
-- **Goal:** Classify countries into life expectancy categories (e.g., *Low <65*, *Medium 65–75*, *High >75*).  
-- **Models:** Logistic Regression, Random Forest Classifier, Support Vector Machine (SVM).  
-- **Evaluation Metrics:** Accuracy, Precision, Recall, F1-score, Confusion Matrix.  
-- **Visualization:** Class distribution plots and regional classification maps.  
+2. **Modeling:**  
+   - Compare **Linear Regression**,**Ridge regression** (or L2 regression) **L1 regression** , **Random Forest**, and **XGBoost**.  
+   - Evaluate performance using **R²**, **MAE**, and **RMSE**.  
 
+3. **Interpretability:**  
+   - Compare feature importances across models.  
+   - Use **SHAP values** to explain variable influence and test the dependency on GDP.  
 
-## **Expected Challenges and How They Will Be Addressed**  
-- **Data Quality and Missing Values:** Addressed through imputation and normalization.   
-- **Class Imbalance (for classification):** Resampling techniques such as SMOTE or class weighting will be applied.  
-- **Overfitting:** Controlled using cross-validation and hyperparameter tuning.  
+---
 
+## **Expected Challenges and How They’ll Be Addressed**  
+- **Multicollinearity:** Managed via PCA or L1 regularization.  
+- **Dominance of GDP:** Explicitly analyzed by training models with and without GDP.  
+- **Overfitting:** Controlled using k-fold cross-validation and hyperparameter tuning.  
+
+---
 
 ## **Success Criteria**  
-The project will be considered successful if:  
-- Regression models achieve strong predictive accuracy (R² > 0.85).  
-- Classification models demonstrate reliable performance (accuracy > 70%).  
-- Visualizations clearly illustrate both numerical predictions and categorical trends across countries.  
+The project will be successful if it:
+- Demonstrates clear methodological comparison between ML models.  
+- Identifies features that robustly explain life expectancy across models.  
+- Produces interpretable visualizations that communicate model insights clearly.  
 
+---
 
 ## **Stretch Goals (if time permits)**  
-- Integration of **ensemble learning techniques** (XGBoost, Gradient Boosting).  
-- Development of an **interactive Streamlit dashboard** for model comparison.  
-- **Geospatial visualization** using **Plotly** or **GeoPandas** to map global life expectancy patterns.  
+- Develop an **interactive Streamlit dashboard** comparing feature importance across models.  
+- Conduct **regional subgroup analyses** (e.g., OECD vs. developing countries).  
+- Explore **ensemble or stacking methods** for enhanced prediction accuracy.  
 
