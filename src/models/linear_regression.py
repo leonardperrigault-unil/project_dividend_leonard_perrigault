@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from src.config import RANDOM_SEED, SEPARATOR_WIDTH, CLEANED_DATA_FILE, TARGET_COLUMN, TEST_SIZE
 
@@ -33,10 +34,23 @@ def train_model(X, y):
     print(f"\nTrain set: {X_train.shape[0]} samples")
     print(f"Test set: {X_test.shape[0]} samples")
 
-    model = LinearRegression()
-    model.fit(X_train, y_train)
+    print("\nScaling features...")
+    scaler = StandardScaler()
+    X_train_scaled = pd.DataFrame(
+        scaler.fit_transform(X_train),
+        columns=X_train.columns,
+        index=X_train.index
+    )
+    X_test_scaled = pd.DataFrame(
+        scaler.transform(X_test),
+        columns=X_test.columns,
+        index=X_test.index
+    )
 
-    return model, X_train, X_test, y_train, y_test
+    model = LinearRegression()
+    model.fit(X_train_scaled, y_train)
+
+    return model, X_train_scaled, X_test_scaled, y_train, y_test
 
 def evaluate_model(model, X_train, X_test, y_train, y_test):
     # Train predictions
