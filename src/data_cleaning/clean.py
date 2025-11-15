@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from src.config import SEPARATOR_WIDTH, RAW_DATA_FILE, CLEANED_DATA_FILE
 
 # Set display options for better readability
 pd.set_option('display.max_columns', None)
@@ -14,9 +15,9 @@ def load_data(filepath):
 
 def explore_data(df):
     """Initial exploration of the dataset"""
-    print("="*80)
+    print("=" * SEPARATOR_WIDTH)
     print("INITIAL DATA EXPLORATION")
-    print("="*80)
+    print("=" * SEPARATOR_WIDTH)
 
     print("\nFirst few rows:")
     print(df.head())
@@ -41,9 +42,9 @@ def explore_data(df):
 
 def clean_data(df):
     """Main data cleaning function"""
-    print("\n" + "="*80)
+    print("\n" + "=" * SEPARATOR_WIDTH)
     print("STARTING DATA CLEANING")
-    print("="*80)
+    print("=" * SEPARATOR_WIDTH)
 
     df_clean = df.copy()
 
@@ -131,9 +132,9 @@ def clean_data(df):
 
 def save_cleaned_data(df, output_path):
     """Save the cleaned dataset"""
-    print("\n" + "="*80)
+    print("\n" + "=" * SEPARATOR_WIDTH)
     print("SAVING CLEANED DATA")
-    print("="*80)
+    print("=" * SEPARATOR_WIDTH)
 
     df.to_csv(output_path, index=False)
     print(f"\nCleaned data saved to: {output_path}")
@@ -141,12 +142,8 @@ def save_cleaned_data(df, output_path):
 
 def main():
     """Main execution function"""
-    # File paths
-    input_file = 'data/world-data-2023.csv'
-    output_file = 'data/cleaned_world_data.csv'
-
     # Load data
-    df = load_data(input_file)
+    df = load_data(RAW_DATA_FILE)
 
     # Explore data
     missing_df = explore_data(df)
@@ -155,11 +152,11 @@ def main():
     df_clean = clean_data(df)
 
     # Save cleaned data
-    save_cleaned_data(df_clean, output_file)
+    save_cleaned_data(df_clean, CLEANED_DATA_FILE)
 
-    print("\n" + "="*80)
+    print("\n" + "=" * SEPARATOR_WIDTH)
     print("DATA CLEANING COMPLETED!")
-    print("="*80)
+    print("=" * SEPARATOR_WIDTH)
 
 if __name__ == "__main__":
     main()
