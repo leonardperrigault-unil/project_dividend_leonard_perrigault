@@ -87,7 +87,7 @@ def clean_data(df):
                 print(f"   Dropping column '{col}' ({missing_pct:.1f}% missing)")
                 df_clean = df_clean.drop(columns=[col])
             else:
-                # Use mode (most frequent) for categorical columns
+                # For categorical columns: fill missing values with the most frequent value (mode).
                 mode_val = df_clean[col].mode()[0] if not df_clean[col].mode().empty else 'Unknown'
                 df_clean[col] = df_clean[col].fillna(mode_val)
                 print(f"   Filled '{col}' with mode value")
@@ -101,11 +101,33 @@ def clean_data(df):
     else:
         print("   No duplicates found")
 
-    # TODO: Handle outliers
+    # 6. Handle outliers using IQR method for key numeric columns (IQR = Q3-Q1)
+    print("\n6. Detecting outliers in numeric columns...")
+    numeric_cols = df_clean.select_dtypes(include=[np.number]).columns.tolist()
+    outlier_summary = {}
 
-    print(f"\n6. Cleaned dataset: {df_clean.shape[0]} rows, {df_clean.shape[1]} columns")
+    for col in numeric_cols:
+        if col != 'Life expectancy':  # Don't remove outliers from target variable
+            Q1 = df_clean[col].quantile(0.25)
+            Q3 = df_clean[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 3 * IQR  # Using 3*IQR for less aggressive outlier removal
+            upper_bound = Q3 + 3 * IQR
+
+            outliers = ((df_clean[col] < lower_bound) | (df_clean[col] > upper_bound)).sum()
+            if outliers > 0:
+                outlier_summary[col] = outliers
+
+    if outlier_summary:
+        print(f"   Found outliers in {len(outlier_summary)} columns:")
+        for col, count in sorted(outlier_summary.items(), key=lambda x: x[1], reverse=True)[:10]:
+            print(f"     - {col}: {count} outliers")
+        print(" Outliers are kept but flagged for awareness")
+
+    print(f"\n7. Cleaned dataset: {df_clean.shape[0]} rows, {df_clean.shape[1]} columns")
 
     return df_clean
+
 
 def save_cleaned_data(df, output_path):
     """Save the cleaned dataset"""
