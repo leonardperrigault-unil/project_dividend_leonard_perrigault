@@ -1,30 +1,18 @@
-import argparse
 from src.data_cleaning import clean
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='ML Project - World Data Analysis',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
+    print("=" * 80)
+    print("ML Project - World Data Analysis")
+    print("=" * 80)
 
-    parser.add_argument(
-        '-m', '--module',
-        type=str,
-        required=True,
-        choices=['clean','train', 'test'],
-        help='Module to run: clean, train, test'
-    )
+    print("\nAvailable operations:")
+    print("1. Clean data")
 
-    args = parser.parse_args()
+    choice = input("\nSelect operation (1): ").strip()
 
-    if args.module == 'clean':
-        clean.main(input_file=args.input, output_file=args.output)
-    elif args.module == 'train':
-        print("t")
-    elif args.module == 'test':
-        print("t")
+    if choice == '1':
+        clean.main()
     else:
-        print(f"Unknown module: {args.module}")
-
+        print("Invalid choice. Please select 1.")
 if __name__ == "__main__":
     main()
