@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from src.config import RANDOM_SEED, SEPARATOR_WIDTH, CLEANED_DATA_FILE, TARGET_COLUMN, TEST_SIZE
@@ -26,7 +26,7 @@ def prepare_data(df):
 
     return X, y
 
-def train_model(X, y):
+def train_model(X, y, use_l1=False, alpha=1.0):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
     )
@@ -47,12 +47,18 @@ def train_model(X, y):
         index=X_test.index
     )
 
-    model = LinearRegression()
+    if use_l1:
+        print(f"\nTraining Lasso (L1) with alpha={alpha}...")
+        model = Lasso(alpha=alpha, random_state=RANDOM_SEED)
+    else:
+        print("\nTraining Linear Regression...")
+        model = LinearRegression()
+
     model.fit(X_train_scaled, y_train)
 
     return model, X_train_scaled, X_test_scaled, y_train, y_test
 
-def evaluate_model(model, X_train, X_test, y_train, y_test):
+def evaluate_model(model, X_train, X_test, y_train, y_test, model_name="Linear Regression"):
     # Train predictions
     y_train_pred = model.predict(X_train)
     train_r2 = r2_score(y_train, y_train_pred)
@@ -66,7 +72,7 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
     test_rmse = np.sqrt(mean_squared_error(y_test, y_test_pred))
 
     print("\n" + "=" * SEPARATOR_WIDTH)
-    print("MODEL EVALUATION - Linear Regression")
+    print(f"MODEL EVALUATION - {model_name}")
     print("=" * SEPARATOR_WIDTH)
 
     print("\nTrain Metrics:")
@@ -100,14 +106,15 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
         'test_rmse': test_rmse
     }
 
-def main():
+def main(use_l1=False, alpha=1.0):
     df = load_cleaned_data(CLEANED_DATA_FILE)
 
     X, y = prepare_data(df)
 
-    model, X_train, X_test, y_train, y_test = train_model(X, y)
+    model, X_train, X_test, y_train, y_test = train_model(X, y, use_l1=use_l1, alpha=alpha)
 
-    metrics = evaluate_model(model, X_train, X_test, y_train, y_test)
+    model_name = f"Lasso (L1, alpha={alpha})" if use_l1 else "Linear Regression"
+    metrics = evaluate_model(model, X_train, X_test, y_train, y_test, model_name=model_name)
 
     print("\n" + "=" * SEPARATOR_WIDTH)
     print("TRAINING COMPLETED")
