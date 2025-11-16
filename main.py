@@ -11,17 +11,20 @@ def main():
     print("1. Clean data")
     print("2. Train Linear Regression")
     print("3. Train Lasso (L1)")
+    print("4. Train Ridge (L2)")
 
-    choice = input("\nSelect operation (1-3): ").strip()
+    choice = input("\nSelect operation (1-4): ").strip()
 
     if choice == '1':
         clean.main()
     elif choice == '2':
-        linear_regression.main()
+        linear_regression.main(regularization="none")
     elif choice == '3':
-        linear_regression.main(use_l1=True, alpha=1.0)
+        linear_regression.main(regularization="l1", alpha=1.0)
+    elif choice == '4':
+        linear_regression.main(regularization="l2", alpha=1.0)
     else:
-        print("Invalid choice. Please select 1-3.")
+        print("Invalid choice. Please select 1-4.")
 
 if __name__ == "__main__":
     main()

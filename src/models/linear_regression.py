@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from src.config import RANDOM_SEED, SEPARATOR_WIDTH, CLEANED_DATA_FILE, TARGET_COLUMN, TEST_SIZE
@@ -26,7 +26,7 @@ def prepare_data(df):
 
     return X, y
 
-def train_model(X, y, use_l1=False, alpha=1.0):
+def train_model(X, y, regularization="none", alpha=1.0):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
     )
@@ -47,9 +47,12 @@ def train_model(X, y, use_l1=False, alpha=1.0):
         index=X_test.index
     )
 
-    if use_l1:
+    if regularization == "l1":
         print(f"\nTraining Lasso (L1) with alpha={alpha}...")
         model = Lasso(alpha=alpha, random_state=RANDOM_SEED)
+    elif regularization == "l2":
+        print(f"\nTraining Ridge (L2) with alpha={alpha}...")
+        model = Ridge(alpha=alpha, random_state=RANDOM_SEED)
     else:
         print("\nTraining Linear Regression...")
         model = LinearRegression()
@@ -106,14 +109,20 @@ def evaluate_model(model, X_train, X_test, y_train, y_test, model_name="Linear R
         'test_rmse': test_rmse
     }
 
-def main(use_l1=False, alpha=1.0):
+def main(regularization="none", alpha=1.0):
     df = load_cleaned_data(CLEANED_DATA_FILE)
 
     X, y = prepare_data(df)
 
-    model, X_train, X_test, y_train, y_test = train_model(X, y, use_l1=use_l1, alpha=alpha)
+    model, X_train, X_test, y_train, y_test = train_model(X, y, regularization=regularization, alpha=alpha)
 
-    model_name = f"Lasso (L1, alpha={alpha})" if use_l1 else "Linear Regression"
+    if regularization == "l1":
+        model_name = f"Lasso (L1, alpha={alpha})"
+    elif regularization == "l2":
+        model_name = f"Ridge (L2, alpha={alpha})"
+    else:
+        model_name = "Linear Regression"
+
     metrics = evaluate_model(model, X_train, X_test, y_train, y_test, model_name=model_name)
 
     print("\n" + "=" * SEPARATOR_WIDTH)
