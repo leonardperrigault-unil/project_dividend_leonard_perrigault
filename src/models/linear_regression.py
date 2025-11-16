@@ -1,10 +1,14 @@
 import pandas as pd
 import numpy as np
+import pickle
+import os
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from src.config import RANDOM_SEED, SEPARATOR_WIDTH, CLEANED_DATA_FILE, TARGET_COLUMN, TEST_SIZE
+
+MODELS_DIR = "saved_models"
 
 def load_cleaned_data(filepath):
     df = pd.read_csv(filepath)
@@ -138,6 +142,13 @@ def evaluate_model(model, X_train, X_test, y_train, y_test, model_name="Linear R
         'test_rmse': test_rmse
     }
 
+def save_model(model, model_type):
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    filename = f"{MODELS_DIR}/{model_type}_model.pkl"
+    with open(filename, 'wb') as f:
+        pickle.dump(model, f)
+    print(f"\nModel saved: {filename}")
+
 def main(regularization="none", alpha=1.0, optimize_hyperparams=False):
     df = load_cleaned_data(CLEANED_DATA_FILE)
 
@@ -155,15 +166,20 @@ def main(regularization="none", alpha=1.0, optimize_hyperparams=False):
             model_name = f"Lasso (L1, optimized alpha={model.alpha:.6f})"
         else:
             model_name = f"Lasso (L1, alpha={alpha})"
+        model_type = "lasso"
     elif regularization == "l2":
         if optimize_hyperparams:
             model_name = f"Ridge (L2, optimized alpha={model.alpha:.6f})"
         else:
             model_name = f"Ridge (L2, alpha={alpha})"
+        model_type = "ridge"
     else:
         model_name = "Linear Regression"
+        model_type = "linear"
 
     metrics = evaluate_model(model, X_train, X_test, y_train, y_test, model_name=model_name)
+
+    save_model(model, model_type)
 
     print("\n" + "=" * SEPARATOR_WIDTH)
     print("TRAINING COMPLETED")
