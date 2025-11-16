@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
@@ -26,7 +26,7 @@ def prepare_data(df):
 
     return X, y
 
-def train_model(X, y, regularization="none", alpha=1.0):
+def train_model(X, y, regularization="none", alpha=1.0, optimize_hyperparams=False):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
     )
@@ -48,16 +48,45 @@ def train_model(X, y, regularization="none", alpha=1.0):
     )
 
     if regularization == "l1":
-        print(f"\nTraining Lasso (L1) with alpha={alpha}...")
-        model = Lasso(alpha=alpha, random_state=RANDOM_SEED)
+        if optimize_hyperparams:
+            print("\nOptimizing Lasso (L1) hyperparameters...")
+            alphas = np.logspace(-4, 2, 50)
+            model = GridSearchCV(
+                Lasso(random_state=RANDOM_SEED),
+                {'alpha': alphas},
+                cv=5,
+                scoring='r2' #Maximisation of r2 during the cross-validation
+            )
+            model.fit(X_train_scaled, y_train)
+            print(f"Best alpha found: {model.best_params_['alpha']:.6f}")
+            print(f"Best CV R² score: {model.best_score_:.4f}")
+            model = model.best_estimator_
+        else:
+            print(f"\nTraining Lasso (L1) with alpha={alpha}...")
+            model = Lasso(alpha=alpha, random_state=RANDOM_SEED)
+            model.fit(X_train_scaled, y_train)
     elif regularization == "l2":
-        print(f"\nTraining Ridge (L2) with alpha={alpha}...")
-        model = Ridge(alpha=alpha, random_state=RANDOM_SEED)
+        if optimize_hyperparams:
+            print("\nOptimizing Ridge (L2) hyperparameters...")
+            alphas = np.logspace(-4, 2, 50)
+            model = GridSearchCV(
+                Ridge(random_state=RANDOM_SEED),
+                {'alpha': alphas},
+                cv=5,
+                scoring='r2'
+            )
+            model.fit(X_train_scaled, y_train)
+            print(f"Best alpha found: {model.best_params_['alpha']:.6f}")
+            print(f"Best CV R² score: {model.best_score_:.4f}")
+            model = model.best_estimator_
+        else:
+            print(f"\nTraining Ridge (L2) with alpha={alpha}...")
+            model = Ridge(alpha=alpha, random_state=RANDOM_SEED)
+            model.fit(X_train_scaled, y_train)
     else:
         print("\nTraining Linear Regression...")
         model = LinearRegression()
-
-    model.fit(X_train_scaled, y_train)
+        model.fit(X_train_scaled, y_train)
 
     return model, X_train_scaled, X_test_scaled, y_train, y_test
 
@@ -109,17 +138,28 @@ def evaluate_model(model, X_train, X_test, y_train, y_test, model_name="Linear R
         'test_rmse': test_rmse
     }
 
-def main(regularization="none", alpha=1.0):
+def main(regularization="none", alpha=1.0, optimize_hyperparams=False):
     df = load_cleaned_data(CLEANED_DATA_FILE)
 
     X, y = prepare_data(df)
 
-    model, X_train, X_test, y_train, y_test = train_model(X, y, regularization=regularization, alpha=alpha)
+    model, X_train, X_test, y_train, y_test = train_model(
+        X, y,
+        regularization=regularization,
+        alpha=alpha,
+        optimize_hyperparams=optimize_hyperparams
+    )
 
     if regularization == "l1":
-        model_name = f"Lasso (L1, alpha={alpha})"
+        if optimize_hyperparams:
+            model_name = f"Lasso (L1, optimized alpha={model.alpha:.6f})"
+        else:
+            model_name = f"Lasso (L1, alpha={alpha})"
     elif regularization == "l2":
-        model_name = f"Ridge (L2, alpha={alpha})"
+        if optimize_hyperparams:
+            model_name = f"Ridge (L2, optimized alpha={model.alpha:.6f})"
+        else:
+            model_name = f"Ridge (L2, alpha={alpha})"
     else:
         model_name = "Linear Regression"
 

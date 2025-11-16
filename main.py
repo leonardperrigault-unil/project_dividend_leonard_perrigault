@@ -20,9 +20,9 @@ def main():
     elif choice == '2':
         linear_regression.main(regularization="none")
     elif choice == '3':
-        linear_regression.main(regularization="l1", alpha=1.0)
+        linear_regression.main(regularization="l1", optimize_hyperparams=True)
     elif choice == '4':
-        linear_regression.main(regularization="l2", alpha=1.0)
+        linear_regression.main(regularization="l2", optimize_hyperparams=True)
     else:
         print("Invalid choice. Please select 1-4.")
 
