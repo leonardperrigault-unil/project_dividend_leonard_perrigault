@@ -21,7 +21,7 @@ def load_model(model_type):
     print(f"Loaded model: {filename}")
     return model
 
-def load_and_prepare_data():
+def load_and_prepare_data(scale_data=True):
     df = pd.read_csv(CLEANED_DATA_FILE)
     numeric_df = df.select_dtypes(include=[np.number])
 
@@ -32,11 +32,13 @@ def load_and_prepare_data():
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
     )
 
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-
-    return X_train_scaled, X_test_scaled, y_train, y_test, X.columns
+    if scale_data:
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        return X_train_scaled, X_test_scaled, y_train, y_test, X.columns
+    else:
+        return X_train.values, X_test.values, y_train, y_test, X.columns
 
 def plot_actual_vs_predicted(y_test, y_pred, model_type):
     plt.figure(figsize=(10, 6))
@@ -84,16 +86,32 @@ def plot_residuals(y_test, y_pred, model_type):
     plt.close()
 
 def plot_feature_importance(model, feature_names, model_type):
-    feature_importance = pd.DataFrame({
-        'Feature': feature_names,
-        'Coefficient': model.coef_,
-        'Abs_Coefficient': np.abs(model.coef_)
-    })
-    feature_importance = feature_importance.sort_values('Abs_Coefficient', ascending=False).head(10)
+    # Check if model has coef_ (linear models) or feature_importances_ (tree models)
+    if hasattr(model, 'coef_'):
+        feature_importance = pd.DataFrame({
+            'Feature': feature_names,
+            'Importance': model.coef_,
+            'Abs_Importance': np.abs(model.coef_)
+        })
+        xlabel = 'Coefficient Value'
+        value_col = 'Importance'
+    elif hasattr(model, 'feature_importances_'):
+        feature_importance = pd.DataFrame({
+            'Feature': feature_names,
+            'Importance': model.feature_importances_
+        })
+        feature_importance['Abs_Importance'] = feature_importance['Importance']
+        xlabel = 'Feature Importance'
+        value_col = 'Importance'
+    else:
+        print("Model does not have feature importance information")
+        return
+
+    feature_importance = feature_importance.sort_values('Abs_Importance', ascending=False).head(10)
 
     plt.figure(figsize=(10, 6))
-    plt.barh(feature_importance['Feature'], feature_importance['Coefficient'])
-    plt.xlabel('Coefficient Value')
+    plt.barh(feature_importance['Feature'], feature_importance[value_col])
+    plt.xlabel(xlabel)
     plt.ylabel('Feature')
     plt.title(f'Top 10 Feature Importance - {model_type.capitalize()}')
     plt.gca().invert_yaxis()
@@ -127,7 +145,9 @@ def test_model_interactive(model_type):
 
     model = load_model(model_type)
 
-    X_train, X_test, y_train, y_test, feature_names = load_and_prepare_data()
+    # Tree-based models don't need scaling
+    needs_scaling = model_type not in ['random_forest', 'xgboost']
+    X_train, X_test, y_train, y_test, feature_names = load_and_prepare_data(scale_data=needs_scaling)
 
     print(f"\nTest set: {X_test.shape[0]} samples")
 
