@@ -1,5 +1,5 @@
 from src.data_cleaning import clean
-from src.models import linear_regression, test_model, random_forest, xgboost_model, compare_models, shap_analysis
+from src.models import linear_regression, test_model, random_forest, xgboost_model, compare_models, shap_analysis, vif_analysis
 from src.config import SEPARATOR_WIDTH
 
 def main():
@@ -17,8 +17,9 @@ def main():
     print("7. Test Model")
     print("8. Compare All Models")
     print("9. SHAP Analysis")
+    print("10. VIF Analysis")
 
-    choice = input("\nSelect operation (1-9): ").strip()
+    choice = input("\nSelect operation (1-10): ").strip()
 
     if choice == '1':
         clean.main()
@@ -38,8 +39,10 @@ def main():
         compare_models.main()
     elif choice == '9':
         shap_analysis.main()
+    elif choice == '10':
+        vif_analysis.main()
     else:
-        print("Invalid choice. Please select 1-9.")
+        print("Invalid choice. Please select 1-10.")
 
 if __name__ == "__main__":
     main()
